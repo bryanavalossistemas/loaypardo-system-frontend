@@ -10,9 +10,20 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import Logout from "./Logout";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function HeaderGroupRight({ className, ...props }) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const cerrarSesion = () => {
+    localStorage.removeItem("AUTH_TOKEN");
+    queryClient.invalidateQueries({ queryKey: ["usuario"] });
+    navigate("/");
+    toast.success("Cerraste sesión");
+  };
+
   return (
     <div className={cn("gap-x-1 sm:gap-x-3", className)} {...props}>
       {/* <ModeToggle /> */}
@@ -29,7 +40,9 @@ export default function HeaderGroupRight({ className, ...props }) {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem> <Logout /> </DropdownMenuItem>
+          <DropdownMenuItem onClick={cerrarSesion}>
+            Cerrar Sesion
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

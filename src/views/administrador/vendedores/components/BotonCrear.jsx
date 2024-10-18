@@ -4,10 +4,17 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { AddButton } from "./AddButton";
 import { z } from "zod";
-import apiVendedor from "@/apis/Vendedores";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { crearVendedor } from "@/apis/VendedorAPI";
+import BotonCrearUi from "@/components/administrador/BotonCrear";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -16,98 +23,86 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-export default function BotonCrear({ obtenerVendedores }) {
+export default function BotonCrear() {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const form = useForm({
+  const valoresIniciales = {
+    nombre: "",
+    usuario: "",
+    contrasenia: "",
+    dni: "",
+    telefono: "",
+    celular: "",
+    correo: "",
+  };
+
+  const formulario = useForm({
     resolver: zodResolver(
       z.object({
-        nombre: z.string().min(1, {
-          message: "El nombre del vendedor es requerido",
-        }),
-        usuario: z.string().min(1, {
-          message: "El nombre de usuario del vendedor es requerido",
-        }),
-        contrasenia: z.string().min(1, {
-          message: "La contraseña del vendedor es requerida",
-        }),
-        dni: z.coerce
-          .number({
-            required_error: "El DNI del vendedor es requerido",
-            invalid_type_error: "El DNI del vendedor debe ser un número",
-          })
-          .refine(
-            (val) => `${val}`.length === 8,
-            "El DNI del vendedor debe tener 8 dígitos"
-          ),
-        celular: z.coerce
-          .number({
-            required_error: "El celular del vendedor es requerido",
-            invalid_type_error: "El celular del vendedor debe ser un número",
-          })
-          .refine(
-            (val) => `${val}`.length === 9,
-            "El celular del vendedor debe tener 9 dígitos"
+        nombre: z.string().regex(/^.+$/, "El nombre del vendedor es requerido"),
+        usuario: z
+          .string()
+          .regex(/^.+$/, "El usuario del vendedor es requerido"),
+        contrasenia: z
+          .string()
+          .regex(/^.+$/, "La contraseña del vendedor es requerida"),
+        dni: z
+          .string()
+          .regex(/^\d{8}$/, "El dni del vendedor debe tener 8 dígitos"),
+        telefono: z
+          .string()
+          .regex(/^(\d{7})?$/, "El teléfono del vendedor debe tener 7 dígitos"),
+        celular: z
+          .string()
+          .regex(/^(\d{9})?$/, "El celular del vendedor debe tener 9 dígitos"),
+        correo: z
+          .string()
+          .regex(
+            /^$|^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
+            "El correo del vendedor no es válido"
           ),
       })
     ),
-    defaultValues: {
-      nombre: "",
-      usuario: "",
-      contrasenia: "",
-      dni: "",
-      celular: "",
+    defaultValues: valoresIniciales,
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: crearVendedor,
+    onError: (error) => {
+      setOpen(false);
+      toast.error(error.message);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["vendedores"] });
+      setOpen(false);
+      toast.success(data);
     },
   });
 
-  async function handleSubmit(datos) {
-    try {
-      const respuesta = await apiVendedor.crearVendedor(datos);
-      if (!respuesta.ok) {
-        toast.error(respuesta.message);
-        return;
-      }
-      toast.success("Vendedor creado correctamente");
-      setOpen(false);
-      obtenerVendedores();
-    } catch (error) {
-      toast.error(error.message);
-    }
-  }
+  const handleCrearVendedor = (datosFormulario) => mutate(datosFormulario);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <AddButton onClick={() => form.reset()} />
-      </DialogTrigger>
-      <DialogContent className="overflow-auto">
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-y-3 max-w-xl max-h-[98vh]"
-            onSubmit={form.handleSubmit(handleSubmit)}
-          >
-            <Card className="">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-2xl text-center">
-                  Crear Vendedor
-                </CardTitle>
-                <CardDescription className="text-center">
-                  Agregue un vendedor aquí. Haga clic en agregar cuando haya
-                  terminado.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4">
+    <>
+      <BotonCrearUi onClick={() => setOpen(true)} recurso={"Vendedor"} />
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-teal-600">Crear Vendedor</DialogTitle>
+            <DialogDescription>
+              Agregue un vendedor aquí. Haga clic en guardar cuando haya
+              terminado.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...formulario}>
+            <form
+              className="space-y-4"
+              onSubmit={formulario.handleSubmit(handleCrearVendedor)}
+            >
+              <div className="space-y-2">
                 <FormField
-                  control={form.control}
+                  control={formulario.control}
                   name="nombre"
                   render={({ field }) => (
                     <FormItem>
@@ -124,7 +119,7 @@ export default function BotonCrear({ obtenerVendedores }) {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={formulario.control}
                   name="usuario"
                   render={({ field }) => (
                     <FormItem>
@@ -132,13 +127,13 @@ export default function BotonCrear({ obtenerVendedores }) {
                       <FormControl>
                         <Input placeholder="goku123" {...field} />
                       </FormControl>
-
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
-                  control={form.control}
+                  control={formulario.control}
                   name="contrasenia"
                   render={({ field }) => (
                     <FormItem>
@@ -154,8 +149,9 @@ export default function BotonCrear({ obtenerVendedores }) {
                     </FormItem>
                   )}
                 />
+
                 <FormField
-                  control={form.control}
+                  control={formulario.control}
                   name="dni"
                   render={({ field }) => (
                     <FormItem>
@@ -171,8 +167,23 @@ export default function BotonCrear({ obtenerVendedores }) {
                     </FormItem>
                   )}
                 />
+
                 <FormField
-                  control={form.control}
+                  control={formulario.control}
+                  name="telefono"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teléfono del vendedor</FormLabel>
+                      <FormControl>
+                        <Input placeholder="4746922" {...field} type="number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={formulario.control}
                   name="celular"
                   render={({ field }) => (
                     <FormItem>
@@ -188,25 +199,44 @@ export default function BotonCrear({ obtenerVendedores }) {
                     </FormItem>
                   )}
                 />
-              </CardContent>
-              <CardFooter className="flex justify-end">
-                <div className="flex gap-x-3">
-                  <Button
-                    onClick={() => setOpen(false)}
-                    variant="outline"
-                    type="button"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button disabled={form.formState.isSubmitting} type="submit">
-                    Guardar
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+
+                <FormField
+                  control={formulario.control}
+                  name="correo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo del vendedor</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="correo@correo.com"
+                          {...field}
+                          type="email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex justify-end gap-x-2">
+                <Button
+                  onClick={() => setOpen(false)}
+                  variant="outline"
+                  type="button"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  disabled={formulario.formState.isSubmitting}
+                  type="submit"
+                >
+                  Guardar
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

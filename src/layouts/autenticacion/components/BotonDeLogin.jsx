@@ -21,7 +21,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import apiUsuario from "@/apis/Usuario";
+import apiUsuario from "@/apis/UsuarioAPI";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import useAutenticacionStore from "@/store/autenticacion/Autenticacion";

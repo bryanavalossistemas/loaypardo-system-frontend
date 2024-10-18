@@ -1,14 +1,12 @@
+import Header from "@/components/layouts/home/Header";
+import Footer from "@/components/layouts/home/Footer";
 import { Outlet } from "react-router-dom";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import { Toaster } from "@/components/ui/sonner";
 
 export default function LayoutHome() {
   return (
-    <div className="h-lvh flex flex-col bg-teal-400">
+    <div className="min-h-screen flex flex-col">
       <Header />
       <Outlet />
-      <Toaster position="bottom-center" richColors />
       <Footer />
     </div>
   );
