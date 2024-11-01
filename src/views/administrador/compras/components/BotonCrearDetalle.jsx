@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/libs/Utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import useComprasStore from "@/store/compras/ComprasStore";
+import useComprasStore from "@/stores/compras/ComprasStore";
 import {
   Form,
   FormControl,

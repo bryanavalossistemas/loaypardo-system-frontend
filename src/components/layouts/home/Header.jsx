@@ -9,6 +9,7 @@ import { iniciarSesion, obtenerUsuario } from "@/apis/UsuarioAPI";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useAutenticacionStore } from "@/stores/AutenticacionStore";
 import {
   Dialog,
   DialogContent,
@@ -45,19 +46,20 @@ const elementos = [
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const navegar = useNavigate();
+  const navigate = useNavigate();
+  const setToken = useAutenticacionStore((state) => state.setToken);
 
   const valoresIniciales = {
-    usuario: "",
-    contrasenia: "",
+    username: "",
+    password: "",
   };
   const formulario = useForm({
     resolver: zodResolver(
       z.object({
-        usuario: z.string().min(1, {
+        username: z.string().min(1, {
           message: "El nombre de usuario es requerido",
         }),
-        contrasenia: z.string().min(1, {
+        password: z.string().min(1, {
           message: "La contraseña es requerida",
         }),
       })
@@ -65,20 +67,31 @@ export default function Header() {
     defaultValues: valoresIniciales,
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: iniciarSesion,
     onError: (error) => {
+      if (error.response?.data?.errors) {
+        const errores = error.response.data.errors;
+        errores.forEach((error) => {
+          formulario.setError(error.path, {
+            type: "manual",
+            message: error.message,
+          });
+        });
+        return;
+      }
       toast.error(error.message);
     },
-    onSuccess: (usuario) => {
-      if (usuario.rolId === 1) {
-        navegar("/administrador/dashboard");
-      } else if (usuario.rolId === 2) {
-        navegar("/vendedor/ventas");
+    onSuccess: ({ token, rolId, nombre }) => {
+      setToken(token);
+      if (rolId === 1) {
+        navigate("/dashboard");
+      } else if (rolId === 2) {
+        navigate("/vendedor/ventas");
       } else {
-        navegar("/");
+        navigate("/");
       }
-      toast.success("Usuario logueado correctamente");
+      toast.success(`Bienvenido ${nombre}`);
     },
   });
 
@@ -88,13 +101,14 @@ export default function Header() {
     try {
       const usuario = await obtenerUsuario();
       if (usuario.rolId === 1) {
-        navegar("/administrador/dashboard");
+        navigate("/dashboard");
       } else if (usuario.rolId === 2) {
-        navegar("/vendedor/ventas");
+        navigate("/vendedor/ventas");
       } else {
-        navegar("/");
+        navigate("/");
       }
     } catch (error) {
+      formulario.reset();
       setOpen(true);
     }
   }
@@ -124,7 +138,7 @@ export default function Header() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-teal-600">Iniciar sesión</DialogTitle>
+            <DialogTitle>Iniciar sesión</DialogTitle>
             <DialogDescription>
               Ingresa tus credenciales para ingresar a R&N System
             </DialogDescription>
@@ -137,12 +151,17 @@ export default function Header() {
               <div className="space-y-2">
                 <FormField
                   control={formulario.control}
-                  name="usuario"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Usuario</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nombre de usuario" {...field} />
+                        <Input
+                          type="text"
+                          placeholder="Nombre de username"
+                          {...field}
+                          autoComplete="email"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -151,7 +170,7 @@ export default function Header() {
 
                 <FormField
                   control={formulario.control}
-                  name="contrasenia"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Contraseña</FormLabel>
@@ -160,6 +179,7 @@ export default function Header() {
                           placeholder="Contraseña"
                           {...field}
                           type="password"
+                          autoComplete="current-password"
                         />
                       </FormControl>
                       <FormMessage />
@@ -169,7 +189,7 @@ export default function Header() {
               </div>
 
               <Button
-                disabled={formulario.formState.isSubmitting}
+                disabled={isPending}
                 type="submit"
                 className="w-full bg-teal-600 hover:bg-teal-700 text-white"
               >

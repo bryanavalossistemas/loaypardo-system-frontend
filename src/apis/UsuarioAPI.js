@@ -1,88 +1,25 @@
-import api from "@/lib/axios";
+import api from "@/libs/Axios";
 import { isAxiosError } from "axios";
+import { jwtDecode } from "jwt-decode";
 
 export async function iniciarSesion(datosFormulario) {
-  try {
-    const ruta = "/usuarios/iniciarSesion";
-    const { data } = await api.post(ruta, datosFormulario);
-    localStorage.setItem("AUTH_TOKEN", data.token);
-    return data;
-  } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.mensaje);
-    }
-  }
+  const ruta = "/auth/login";
+  const { data } = await api.post(ruta, datosFormulario);
+  const token = data.token;
+  const decodedToken = jwtDecode(data.token);
+  const rolId = decodedToken.rolId;
+  const nombre = decodedToken.nombre;
+  return { token, rolId, nombre };
 }
 
 export async function obtenerUsuario() {
   try {
-    const { data } = await api.get("/usuarios/usuario");
-    return data;
+    const { data: respuesta } = await api.get("/auth/usuario");
+
+    return respuesta.data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.mensaje);
+      throw new Error(error.response.data);
     }
   }
 }
-
-// export async function forgotPassword(formData) {
-//   try {
-//     const ruta = "/auth/forgot-password";
-//     const { data } = await api.post(ruta, formData);
-//     return data;
-//   } catch (error) {
-//     if (isAxiosError(error) && error.response) {
-//       throw new Error(error.response.data.error);
-//     }
-//   }
-// }
-
-// export async function validateToken(formData) {
-//   try {
-//     const ruta = "/auth/validate-token";
-//     const { data } = await api.post(ruta, formData);
-//     return data;
-//   } catch (error) {
-//     if (isAxiosError(error) && error.response) {
-//       throw new Error(error.response.data.error);
-//     }
-//   }
-// }
-
-// export async function updatePasswordWithToken({ formData, token }) {
-//   try {
-//     const ruta = `/auth/update-password/${token}`;
-//     const { data } = await api.post(ruta, formData);
-//     return data;
-//   } catch (error) {
-//     if (isAxiosError(error) && error.response) {
-//       throw new Error(error.response.data.error);
-//     }
-//   }
-// }
-
-// export async function getUser() {
-//   try {
-//     const { data } = await api("/auth/user");
-//     const response = userSchema.safeParse(data);
-//     if (response.success) {
-//       return response.data;
-//     }
-//   } catch (error) {
-//     if (isAxiosError(error) && error.response) {
-//       throw new Error(error.response.data.error);
-//     }
-//   }
-// }
-
-// export async function checkPassword(formData) {
-//   try {
-//     const ruta = "/auth/check-password";
-//     const { data } = await api.post(ruta, formData);
-//     return data;
-//   } catch (error) {
-//     if (isAxiosError(error) && error.response) {
-//       throw new Error(error.response.data.error);
-//     }
-//   }
-// }

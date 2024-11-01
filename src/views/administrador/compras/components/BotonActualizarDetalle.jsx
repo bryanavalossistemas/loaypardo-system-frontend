@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Pen } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/libs/Utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import useComprasStore from "@/store/compras/ComprasStore";
+import useComprasStore from "@/stores/compras/ComprasStore";
 import {
   Form,
   FormControl,

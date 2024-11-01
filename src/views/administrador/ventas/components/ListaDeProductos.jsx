@@ -1,4 +1,4 @@
-import { formatCurrency } from "@/utils/funciones";
+import { formatCurrency } from "@/libs/Utils";
 import { Card } from "@/components/ui/card";
 import BotonAgregarDetalleVenta from "./BotonAgregarDetalleVenta";
 

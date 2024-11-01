@@ -7,7 +7,7 @@ import {
   Document,
   StyleSheet,
 } from "@react-pdf/renderer";
-import { formatCurrency, formatDateToLocal } from "@/utils/funciones";
+import { formatCurrency, formatDateToLocal } from "@/libs/Utils";
 
 export default function VentaPDF({ venta }) {
   const styles = StyleSheet.create({

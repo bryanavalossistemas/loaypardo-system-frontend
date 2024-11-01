@@ -1,11 +1,11 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/libs/Utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash } from "lucide-react";
-import useVentasStore from "@/store/ventas/VentasStore";
+import useVentasStore from "@/stores/ventas/VentasStore";
 import { Input } from "@/components/ui/input";
 import { useMemo, useState } from "react";
-import { formatCurrency } from "@/utils/funciones";
+import { formatCurrency } from "@/libs/Utils";
 
 export default function DetalleVenta({ detalleVenta }) {
   const [cantidad, setCantidad] = useState(detalleVenta.cantidad);

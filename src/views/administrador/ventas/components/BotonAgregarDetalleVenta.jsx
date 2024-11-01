@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import useVentasStore from "@/store/ventas/VentasStore";
+import useVentasStore from "@/stores/ventas/VentasStore";
 
 export default function BotonAgregarDetalleVenta({ producto }) {
   const agregarDetalleVenta = useVentasStore(

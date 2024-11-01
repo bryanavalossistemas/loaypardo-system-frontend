@@ -11,7 +11,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Router />
-      <Toaster position="bottom-center" richColors />
+      <Toaster expand={true} position="bottom-center" richColors />
     </QueryClientProvider>
   </StrictMode>
 );

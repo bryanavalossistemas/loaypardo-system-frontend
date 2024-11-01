@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import useVentasStore from "@/store/ventas/VentasStore";
+import useVentasStore from "@/stores/ventas/VentasStore";
 import VentaPDF from "./VentaPDF";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import apiVentas from "@/apis/Ventas";

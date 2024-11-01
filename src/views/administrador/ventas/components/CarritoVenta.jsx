@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/utils/funciones";
+import { cn } from "@/libs/Utils";
+import { formatCurrency } from "@/libs/Utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "lucide-react";
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
-import useVentasStore from "@/store/ventas/VentasStore";
+import useVentasStore from "@/stores/ventas/VentasStore";
 import BotonCrearVenta from "./BotonCrearVenta";
 
 export default function CarritoVenta({ clientes }) {

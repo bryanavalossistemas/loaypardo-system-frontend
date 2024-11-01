@@ -5,8 +5,8 @@ import apiCompras from "@/apis/Compras";
 import BotonCrearDetalle from "./BotonCrearDetalle";
 import BotonActualizarDetalle from "./BotonActualizarDetalle";
 import { PlusCircle, Trash } from "lucide-react";
-import useComprasStore from "@/store/compras/ComprasStore";
-import { formatCurrency } from "@/utils/funciones";
+import useComprasStore from "@/stores/compras/ComprasStore";
+import { formatCurrency } from "@/libs/Utils";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
   Table,
